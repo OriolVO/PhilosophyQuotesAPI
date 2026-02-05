@@ -27,6 +27,20 @@ const limiter = setRateLimit({
 });
 app.use(limiter);
 
+// Root Route (Welcome Message)
+app.get('/', (req, res) => {
+  res.json({
+    message: "Welcome to the Philosophy Quotes API",
+    version: "1.0.0",
+    documentation: "/api-docs",
+    endpoints: {
+      random_quote: "/v1/quote/random",
+      authors: "/v1/authors",
+      fields: "/v1/fields"
+    }
+  });
+});
+
 // RapidAPI Proxy Secret Validation
 const checkRapidApiSecret = (req, res, next) => {
   const secret = process.env.RAPIDAPI_SECRET;
@@ -65,6 +79,14 @@ app.get('/v1/quote/random', (req, res) => {
     );
   }
 
+  // Filter by era
+  if (req.query.era) {
+    const eraQuery = req.query.era.toLowerCase();
+    filteredQuotes = filteredQuotes.filter(q => 
+      q.era && q.era.toLowerCase() === eraQuery
+    );
+  }
+
   // Filter by field
   if (req.query.field) {
     const fieldQuery = req.query.field.toLowerCase();
@@ -82,10 +104,15 @@ app.get('/v1/quote/random', (req, res) => {
   }
 
   // Filter by maxLength
+  const lang = req.query.lang || 'en';
+  
   if (req.query.maxLength) {
     const maxLen = parseInt(req.query.maxLength);
     if (!isNaN(maxLen)) {
-      filteredQuotes = filteredQuotes.filter(q => q.content.length <= maxLen);
+      filteredQuotes = filteredQuotes.filter(q => {
+        const text = q.content[lang] || q.content['en'];
+        return text.length <= maxLen;
+      });
     }
   }
 
@@ -94,7 +121,13 @@ app.get('/v1/quote/random', (req, res) => {
   }
 
   const randomIndex = Math.floor(Math.random() * filteredQuotes.length);
-  res.json(filteredQuotes[randomIndex]);
+  const quote = filteredQuotes[randomIndex];
+  
+  // Return specific language content
+  const responseQuote = { ...quote };
+  responseQuote.content = quote.content[lang] || quote.content['en']; // Fallback to EN
+  
+  res.json(responseQuote);
 });
 
 // GET /v1/authors

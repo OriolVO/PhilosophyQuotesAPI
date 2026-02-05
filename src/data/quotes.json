@@ -1,81 +1,131 @@
 [
   {
     "id": 1,
-    "content": "The only true wisdom is in knowing you know nothing.",
+    "content": {
+      "en": "The only true wisdom is in knowing you know nothing.",
+      "es": "La única verdadera sabiduría consiste en saber que no sabes nada."
+    },
     "author": "Socrates",
     "field": "Epistemology",
+    "era": "Ancient",
+    "wiki": "https://en.wikipedia.org/wiki/Socrates",
     "tags": ["wisdom", "knowledge"],
     "source": "Apology"
   },
   {
     "id": 2,
-    "content": "I think, therefore I am.",
+    "content": {
+      "en": "I think, therefore I am.",
+      "es": "Pienso, luego existo."
+    },
     "author": "René Descartes",
     "field": "Metaphysics",
+    "era": "Modern",
+    "wiki": "https://en.wikipedia.org/wiki/Ren%C3%A9_Descartes",
     "tags": ["existence", "reason"],
     "source": "Discourse on the Method"
   },
   {
     "id": 3,
-    "content": "God is dead! He remains dead! And we have killed him.",
+    "content": {
+      "en": "God is dead! He remains dead! And we have killed him.",
+      "es": "¡Dios ha muerto! ¡Sigue muerto! Y nosotros lo hemos matado."
+    },
     "author": "Friedrich Nietzsche",
     "field": "Ethics",
+    "era": "Modern",
+    "wiki": "https://en.wikipedia.org/wiki/Friedrich_Nietzsche",
     "tags": ["religion", "morality"],
     "source": "The Gay Science"
   },
   {
     "id": 4,
-    "content": "He who has a why to live can bear almost any how.",
+    "content": {
+      "en": "He who has a why to live can bear almost any how.",
+      "es": "Quien tiene un porqué para vivir puede soportar casi cualquier cómo."
+    },
     "author": "Friedrich Nietzsche",
     "field": "Existentialism",
+    "era": "Modern",
+    "wiki": "https://en.wikipedia.org/wiki/Friedrich_Nietzsche",
     "tags": ["meaning", "life"],
     "source": "Twilight of the Idols"
   },
   {
     "id": 5,
-    "content": "Happiness is the meaning and the purpose of life, the whole aim and end of human existence.",
+    "content": {
+      "en": "Happiness is the meaning and the purpose of life, the whole aim and end of human existence.",
+      "es": "La felicidad es el significado y el propósito de la vida, todo el fin y el fin de la existencia humana."
+    },
     "author": "Aristotle",
     "field": "Ethics",
+    "era": "Ancient",
+    "wiki": "https://en.wikipedia.org/wiki/Aristotle",
     "tags": ["happiness", "purpose"],
     "source": "Nicomachean Ethics"
   },
   {
     "id": 6,
-    "content": "Man is born free, and everywhere he is in chains.",
+    "content": {
+      "en": "Man is born free, and everywhere he is in chains.",
+      "es": "El hombre nace libre, y en todas partes está encadenado."
+    },
     "author": "Jean-Jacques Rousseau",
     "field": "Political Philosophy",
+    "era": "Modern",
+    "wiki": "https://en.wikipedia.org/wiki/Jean-Jacques_Rousseau",
     "tags": ["freedom", "society"],
     "source": "The Social Contract"
   },
   {
     "id": 7,
-    "content": "The unexamined life is not worth living.",
+    "content": {
+      "en": "The unexamined life is not worth living.",
+      "es": "Una vida sin examen no merece la pena ser vivida."
+    },
     "author": "Socrates",
     "field": "Ethics",
+    "era": "Ancient",
+    "wiki": "https://en.wikipedia.org/wiki/Socrates",
     "tags": ["life", "self-reflection"],
     "source": "Apology"
   },
   {
     "id": 8,
-    "content": "We are what we repeatedly do. Excellence, then, is not an act, but a habit.",
+    "content": {
+      "en": "We are what we repeatedly do. Excellence, then, is not an act, but a habit.",
+      "es": "Somos lo que hacemos repetidamente. La excelencia, entonces, no es un acto, sino un hábito."
+    },
     "author": "Aristotle",
     "field": "Ethics",
+    "era": "Ancient",
+    "wiki": "https://en.wikipedia.org/wiki/Aristotle",
     "tags": ["habit", "excellence"],
     "source": "Nicomachean Ethics"
   },
   {
     "id": 9,
-    "content": "Liberty consists in doing what one desires.",
+    "content": {
+      "en": "Liberty consists in doing what one desires.",
+      "es": "La libertad consiste en hacer lo que uno desea."
+    },
     "author": "John Stuart Mill",
     "field": "Political Philosophy",
+    "era": "Modern",
+    "wiki": "https://en.wikipedia.org/wiki/John_Stuart_Mill",
     "tags": ["liberty", "freedom"],
     "source": "On Liberty"
   },
   {
     "id": 10,
-    "content": "Even while they teach, men learn.",
+    "content": {
+      "en": "Even while they teach, men learn.",
+      "es": "Incluso mientras enseñan, los hombres aprenden."
+    },
     "author": "Seneca",
     "field": "Stoicism",
+    "era": "Ancient",
+    "wiki": "https://en.wikipedia.org/wiki/Seneca_the_Younger",
     "tags": ["learning", "teaching"],
     "source": "Letters to Lucilius"
   }

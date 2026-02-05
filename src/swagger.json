@@ -16,35 +16,46 @@
         "summary": "Get a random quote",
         "parameters": [
           {
+            "name": "X-RapidAPI-Proxy-Secret",
+            "in": "header",
+            "schema": { "type": "string" },
+            "required": true,
+            "description": "RapidAPI Secret for authentication"
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "schema": { "type": "string", "default": "en" },
+            "description": "Language code (en, es)"
+          },
+          {
+            "name": "era",
+            "in": "query",
+            "schema": { "type": "string" },
+            "description": "Filter by era (e.g. Ancient, Modern)"
+          },
+          {
             "name": "author",
             "in": "query",
-            "schema": {
-              "type": "string"
-            },
+            "schema": { "type": "string" },
             "description": "Filter by author name (partial match)"
           },
           {
             "name": "field",
             "in": "query",
-            "schema": {
-              "type": "string"
-            },
+            "schema": { "type": "string" },
             "description": "Filter by philosophical field"
           },
           {
             "name": "tags",
             "in": "query",
-            "schema": {
-              "type": "string"
-            },
+            "schema": { "type": "string" },
             "description": "Filter by tags (comma separated)"
           },
           {
             "name": "maxLength",
             "in": "query",
-            "schema": {
-              "type": "integer"
-            },
+            "schema": { "type": "integer" },
             "description": "Maximum length of the quote"
           }
         ],
@@ -58,6 +69,9 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized / Forbidden (Missing Secret)"
           },
           "404": {
             "description": "No quotes found"
@@ -108,9 +122,14 @@
         "type": "object",
         "properties": {
           "id": { "type": "integer" },
-          "content": { "type": "string" },
+          "content": { 
+            "type": "string",
+            "description": "Quote in requested language (defaults to en)"
+          },
           "author": { "type": "string" },
           "field": { "type": "string" },
+          "era": { "type": "string", "example": "Ancient" },
+          "wiki": { "type": "string", "format": "uri" },
           "tags": { 
             "type": "array",
             "items": { "type": "string" }

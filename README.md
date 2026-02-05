@@ -5,10 +5,12 @@ A lightweight, robust Node.js REST API that serves random philosophical quotes. 
 ## 🚀 Features
 
 -   **Random Quotes**: Get a random wisdom nugget instantly.
--   **Filtering**: Filter by `author`, `field` (e.g., Ethics, Logic), or `tags`.
--   **Performance**: In-memory database for zero-latency responses.
--   **Security**: Rate limiting and secure HTTP headers optimized for public access.
--   **Documentation**: Integrated Swagger UI.
+-   **Security**: `X-RapidAPI-Proxy-Secret` validation for authorized access.
+-   **Filtering**: Filter by `author`, `field`, `era`, or `tags`.
+-   **Internationalization (i18n)**: Get quotes in English (`en`) or Spanish (`es`).
+-   **Rich Metadata**: Includes Wikipedia links and Era classifications.
+-   **Performance**: In-memory database with Caching for static lists.
+-   **Documentation**: Integrated Swagger UI & Logging.
 
 ## 🛠️ Installation
 
@@ -23,21 +25,31 @@ A lightweight, robust Node.js REST API that serves random philosophical quotes. 
     npm install
     ```
 
-3.  **Start the server**
+3.  **Configure Environment**
+    Create a `.env` file:
+    ```bash
+    cp .env.example .env
+    # Edit .env and set your RAPIDAPI_SECRET
+    ```
+
+4.  **Start the server**
     ```bash
     npm start
-    # OR for development with hot-reload (if nodemon is installed)
-    node src/index.js
     ```
 
 ## 📖 API Usage
 
 The API runs on `http://localhost:3000` by default.
 
-### Endpoints
+### Authentication
+All requests must include the `X-RapidAPI-Proxy-Secret` header matching your `.env` secret.
 
+### Endpoints
 -   `GET /v1/quote/random` - Get a random quote.
-    -   Query Params: `?author=Socrates`, `?field=Ethics`, `?tags=wisdom`
+    -   `lang`: Language code (`en`, `es`). Default: `en`.
+    -   `era`: Filter by era (e.g., `Ancient`).
+    -   `author`: Filter by author name.
+    -   `tags`: Filter by tags.
 -   `GET /v1/authors` - List all available authors.
 -   `GET /v1/fields` - List all philosophical fields.
 -   `GET /health` - Service health check.
@@ -46,7 +58,10 @@ The API runs on `http://localhost:3000` by default.
 ### Example Request
 
 ```bash
-curl "http://localhost:3000/v1/quote/random?author=Nietzsche"
+```bash
+curl -H "X-RapidAPI-Proxy-Secret: your-secret" \
+     "http://localhost:3000/v1/quote/random?author=Nietzsche&lang=es"
+```
 ```
 
 ## 🧪 Running Tests

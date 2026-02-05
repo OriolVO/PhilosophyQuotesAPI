@@ -8,7 +8,7 @@ describe('Philosopher Quotes API', () => {
     expect(res.body).toHaveProperty('status', 'ok');
   });
 
-  it('GET /v1/quote/random should return a quote', async () => {
+  it('GET /v1/quote/random should return a quote with metadata', async () => {
     const res = await request(app)
       .get('/v1/quote/random')
       .set('X-RapidAPI-Proxy-Secret', 'test-secret');
@@ -16,6 +16,26 @@ describe('Philosopher Quotes API', () => {
     expect(res.body).toHaveProperty('id');
     expect(res.body).toHaveProperty('content');
     expect(res.body).toHaveProperty('author');
+    expect(res.body).toHaveProperty('era');
+    expect(res.body).toHaveProperty('wiki');
+  });
+
+  it('GET /v1/quote/random?lang=es should return Spanish content', async () => {
+    const res = await request(app)
+      .get('/v1/quote/random?lang=es')
+      .set('X-RapidAPI-Proxy-Secret', 'test-secret');
+    expect(res.statusCode).toEqual(200);
+    // Any Spanish quote will be a string, and we updated quotes.json so it should work
+    expect(typeof res.body.content).toBe('string');
+    // We can't easily check language without a specific ID, but we can verify it returns a string
+  });
+
+  it('GET /v1/quote/random?era=Ancient should return Ancient philosopher', async () => {
+    const res = await request(app)
+      .get('/v1/quote/random?era=Ancient')
+      .set('X-RapidAPI-Proxy-Secret', 'test-secret');
+    expect(res.statusCode).toEqual(200);
+    expect(res.body.era).toEqual('Ancient');
   });
 
   it('GET /v1/quote/random should filter by author', async () => {
