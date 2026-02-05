@@ -63,4 +63,6 @@ See [ROADMAP.md](ROADMAP.md) for the detailed development plan and future phases
 
 ## 📄 License
 
-This project is licensed under the ISC License.
+This project is licensed under the **PolyForm Noncommercial License 1.0.0**. 
+
+**You may NOT use this source code for commercial purposes.** See [LICENSE](LICENSE) for details.

@@ -7,7 +7,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "PolyForm-Noncommercial-1.0.0",
   "description": "",
   "dependencies": {
     "cors": "^2.8.6",

@@ -1,7 +1,33 @@
-ISC License
+PolyForm Noncommercial License 1.0.0
 
-Copyright (c) 2026
+1. Purpose
 
-Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted, provided that the above copyright notice and this permission notice appear in all copies.
+This license allows the software to be used for noncommercial purposes.
 
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+2. Agreement
+
+This license is a legal agreement between the licensor and you, the licensee. By using the software, you agree to the terms of this license.
+
+3. License Grant
+
+The licensor grants you a non-exclusive, royalty-free, worldwide, non-sublicensable license to use, copy, modify, and distribute the software, provided that the software is not used for any Commercial Purpose.
+
+4. Commercial Purpose
+
+"Commercial Purpose" means any use of the software for the purpose of direct or indirect financial gain, or for the benefit of a business entity or commercial organization. This includes, but is not limited to:
+a. Integrating the software into a product or service that is sold or subscribed to.
+b. Using the software for internal business operations.
+c. Distributing the software as part of a commercial offering.
+
+5. Limitations
+
+a. You may not sublicense the software.
+b. You may not remove or alter any copyright, trademark, or other proprietary notices contained in the software.
+
+6. Disclaimer of Warranty
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE LICENSOR BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+7. Termination
+
+This license terminates automatically if you violate any of its terms. Upon termination, you must cease all use of the software and destroy all copies in your possession.
