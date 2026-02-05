@@ -1,0 +1,82 @@
+[
+  {
+    "id": 1,
+    "content": "The only true wisdom is in knowing you know nothing.",
+    "author": "Socrates",
+    "field": "Epistemology",
+    "tags": ["wisdom", "knowledge"],
+    "source": "Apology"
+  },
+  {
+    "id": 2,
+    "content": "I think, therefore I am.",
+    "author": "René Descartes",
+    "field": "Metaphysics",
+    "tags": ["existence", "reason"],
+    "source": "Discourse on the Method"
+  },
+  {
+    "id": 3,
+    "content": "God is dead! He remains dead! And we have killed him.",
+    "author": "Friedrich Nietzsche",
+    "field": "Ethics",
+    "tags": ["religion", "morality"],
+    "source": "The Gay Science"
+  },
+  {
+    "id": 4,
+    "content": "He who has a why to live can bear almost any how.",
+    "author": "Friedrich Nietzsche",
+    "field": "Existentialism",
+    "tags": ["meaning", "life"],
+    "source": "Twilight of the Idols"
+  },
+  {
+    "id": 5,
+    "content": "Happiness is the meaning and the purpose of life, the whole aim and end of human existence.",
+    "author": "Aristotle",
+    "field": "Ethics",
+    "tags": ["happiness", "purpose"],
+    "source": "Nicomachean Ethics"
+  },
+  {
+    "id": 6,
+    "content": "Man is born free, and everywhere he is in chains.",
+    "author": "Jean-Jacques Rousseau",
+    "field": "Political Philosophy",
+    "tags": ["freedom", "society"],
+    "source": "The Social Contract"
+  },
+  {
+    "id": 7,
+    "content": "The unexamined life is not worth living.",
+    "author": "Socrates",
+    "field": "Ethics",
+    "tags": ["life", "self-reflection"],
+    "source": "Apology"
+  },
+  {
+    "id": 8,
+    "content": "We are what we repeatedly do. Excellence, then, is not an act, but a habit.",
+    "author": "Aristotle",
+    "field": "Ethics",
+    "tags": ["habit", "excellence"],
+    "source": "Nicomachean Ethics"
+  },
+  {
+    "id": 9,
+    "content": "Liberty consists in doing what one desires.",
+    "author": "John Stuart Mill",
+    "field": "Political Philosophy",
+    "tags": ["liberty", "freedom"],
+    "source": "On Liberty"
+  },
+  {
+    "id": 10,
+    "content": "Even while they teach, men learn.",
+    "author": "Seneca",
+    "field": "Stoicism",
+    "tags": ["learning", "teaching"],
+    "source": "Letters to Lucilius"
+  }
+]

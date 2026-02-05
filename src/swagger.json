@@ -1,0 +1,123 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Philosophy Quotes API",
+    "description": "A simple API to get random quotes from famous philosophers.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/v1"
+    }
+  ],
+  "paths": {
+    "/quote/random": {
+      "get": {
+        "summary": "Get a random quote",
+        "parameters": [
+          {
+            "name": "author",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by author name (partial match)"
+          },
+          {
+            "name": "field",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by philosophical field"
+          },
+          {
+            "name": "tags",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by tags (comma separated)"
+          },
+          {
+            "name": "maxLength",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Maximum length of the quote"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Quote"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No quotes found"
+          }
+        }
+      }
+    },
+    "/authors": {
+      "get": {
+        "summary": "Get all authors",
+        "responses": {
+          "200": {
+            "description": "List of authors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fields": {
+      "get": {
+        "summary": "Get all fields",
+        "responses": {
+          "200": {
+            "description": "List of fields",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Quote": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "content": { "type": "string" },
+          "author": { "type": "string" },
+          "field": { "type": "string" },
+          "tags": { 
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "source": { "type": "string" }
+        }
+      }
+    }
+  }
+}
