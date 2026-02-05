@@ -6,6 +6,8 @@ const swaggerDocument = require('./swagger.json');
 const setRateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const NodeCache = require('node-cache');
+const morgan = require('morgan');
+require('dotenv').config();
 
 const cache = new NodeCache({ stdTTL: 3600 }); // 1 hour TTL
 
@@ -13,6 +15,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(helmet());
+app.use(morgan('dev'));
 app.use(cors());
 app.use(express.json());
 
@@ -23,6 +26,23 @@ const limiter = setRateLimit({
   headers: true,
 });
 app.use(limiter);
+
+// RapidAPI Proxy Secret Validation
+const checkRapidApiSecret = (req, res, next) => {
+  const secret = process.env.RAPIDAPI_SECRET;
+  if (!secret) return next(); // If no secret set, skip check (dev mode)
+  
+  const clientSecret = req.get('X-RapidAPI-Proxy-Secret');
+  if (clientSecret !== secret) {
+    return res.status(403).json({ 
+      error: { code: 403, message: "Forbidden: Invalid RapidAPI Secret" } 
+    });
+  }
+  next();
+};
+
+// Apply secret check to all /v1 routes
+app.use('/v1', checkRapidApiSecret);
 
 // Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
@@ -70,14 +90,13 @@ app.get('/v1/quote/random', (req, res) => {
   }
 
   if (filteredQuotes.length === 0) {
-    return res.status(404).json({ error: "No quotes found matching criteria" });
+    return res.status(404).json({ error: { code: 404, message: "No quotes found matching criteria" } });
   }
 
   const randomIndex = Math.floor(Math.random() * filteredQuotes.length);
   res.json(filteredQuotes[randomIndex]);
 });
 
-// GET /v1/authors
 // GET /v1/authors
 app.get('/v1/authors', (req, res) => {
   const cachedAuthors = cache.get('authors');
@@ -89,7 +108,6 @@ app.get('/v1/authors', (req, res) => {
   res.json(authors);
 });
 
-// GET /v1/fields
 // GET /v1/fields
 app.get('/v1/fields', (req, res) => {
   const cachedFields = cache.get('fields');
@@ -104,6 +122,18 @@ app.get('/v1/fields', (req, res) => {
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
+});
+
+// Error Handling Middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  const code = err.status || 500;
+  res.status(code).json({
+    error: {
+      code: code,
+      message: err.message || "Internal Server Error"
+    }
+  });
 });
 
 if (require.main === module) {
