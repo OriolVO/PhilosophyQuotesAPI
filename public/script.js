@@ -1,31 +1,18 @@
-let currentData = null;
+const staticData = {
+    "id": 1,
+    "content": "The only true wisdom is in knowing you know nothing.",
+    "author": "Socrates",
+    "field": "Epistemology",
+    "era": "Classical Greece",
+    "source": "Apology"
+};
+
 let isJson = false;
 
-async function fetchQuote() {
-    const textEl = document.getElementById('quote-text');
-    const authorEl = document.getElementById('quote-author');
-    const metaEl = document.getElementById('quote-meta');
+function initDisplay() {
     const jsonEl = document.getElementById('json-mode');
-    
-    textEl.style.opacity = '0.5';
-
-    try {
-        const res = await fetch('/quotes/random');
-        const data = await res.json();
-        currentData = data;
-        
-        // Visual Update
-        textEl.innerText = `"${data.content}"`;
-        authorEl.innerText = data.author;
-        metaEl.innerText = `${data.era} • ${data.field}`;
-        
-        // JSON Update
-        jsonEl.innerText = JSON.stringify(data, null, 2);
-        
-        textEl.style.opacity = '1';
-    } catch (err) {
-        textEl.innerText = "Error loading wisdom.";
-        console.error(err);
+    if (jsonEl) {
+        jsonEl.innerText = JSON.stringify(staticData, null, 2);
     }
 }
 
@@ -47,7 +34,6 @@ function toggleView() {
     }
 }
 
-// Load intent - Using DOMContentLoaded for safety in external script
 document.addEventListener('DOMContentLoaded', () => {
-    fetchQuote();
+    initDisplay();
 });
