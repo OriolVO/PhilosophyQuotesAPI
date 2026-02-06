@@ -5,6 +5,7 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
 const setRateLimit = require('express-rate-limit');
 const helmet = require('helmet');
+const path = require('path');
 const NodeCache = require('node-cache');
 const morgan = require('morgan');
 require('dotenv').config();
@@ -14,10 +15,24 @@ const cache = new NodeCache({ stdTTL: 3600 }); // 1 hour TTL
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"], // Allow inline scripts
+      scriptSrcAttr: ["'unsafe-inline'"], // Allow inline event handlers (onclick)
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"], // Allow inline styles & Google Fonts
+      fontSrc: ["'self'", "https://fonts.gstatic.com"], // Allow Google Fonts
+      imgSrc: ["'self'", "data:"],
+    },
+  },
+}));
 app.use(morgan('dev'));
 app.use(cors());
 app.use(express.json());
+
+// Serve Static Landing Page
+app.use(express.static(path.join(__dirname, '../public')));
 
 // Rate Limiting
 const limiter = setRateLimit({
@@ -27,19 +42,8 @@ const limiter = setRateLimit({
 });
 app.use(limiter);
 
-// Root Route (Welcome Message)
-app.get('/', (req, res) => {
-  res.json({
-    message: "Welcome to the Philosophy Quotes API",
-    version: "1.0.0",
-    documentation: "/api-docs",
-    endpoints: {
-      random_quote: "/v1/quote/random",
-      authors: "/v1/authors",
-      fields: "/v1/fields"
-    }
-  });
-});
+// Root Route - Handled by express.static now
+// If index.html is missing, fallthrough behavior (optional)
 
 // RapidAPI Proxy Secret Validation
 const checkRapidApiSecret = (req, res, next) => {
@@ -55,8 +59,8 @@ const checkRapidApiSecret = (req, res, next) => {
   next();
 };
 
-// Apply secret check to all /v1 routes
-app.use('/v1', checkRapidApiSecret);
+// Apply secret check to all /quotes and meta routes
+app.use(['/quotes', '/authors', '/fields'], checkRapidApiSecret);
 
 // Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
@@ -67,9 +71,26 @@ const getUniqueValues = (key) => {
   return Array.from(values);
 };
 
-// GET /v1/quote/random
-app.get('/v1/quote/random', (req, res) => {
+// GET /quote (Redirect legacy/typo)
+app.get('/quote', (req, res) => {
+  res.redirect(301, '/quotes');
+});
+
+// GET /quotes/random (Preserve "Random" logic, must be before :id)
+app.get('/quotes/random', (req, res) => {
   let filteredQuotes = quotes;
+
+  // Full-Text Search
+  if (req.query.query) {
+    const searchTerm = req.query.query.toLowerCase();
+    filteredQuotes = filteredQuotes.filter(q => {
+      const authorMatch = q.author.toLowerCase().includes(searchTerm);
+      const contentMatch = Object.values(q.content).some(text => 
+        text && text.toLowerCase().includes(searchTerm)
+      );
+      return authorMatch || contentMatch;
+    });
+  }
 
   // Filter by author
   if (req.query.author) {
@@ -83,7 +104,7 @@ app.get('/v1/quote/random', (req, res) => {
   if (req.query.era) {
     const eraQuery = req.query.era.toLowerCase();
     filteredQuotes = filteredQuotes.filter(q => 
-      q.era && q.era.toLowerCase() === eraQuery
+      q.era && q.era.toLowerCase().includes(eraQuery)
     );
   }
 
@@ -92,14 +113,6 @@ app.get('/v1/quote/random', (req, res) => {
     const fieldQuery = req.query.field.toLowerCase();
     filteredQuotes = filteredQuotes.filter(q => 
       q.field.toLowerCase().includes(fieldQuery)
-    );
-  }
-
-  // Filter by tags
-  if (req.query.tags) {
-    const tagsQuery = req.query.tags.toLowerCase().split(',');
-    filteredQuotes = filteredQuotes.filter(q => 
-      q.tags.some(tag => tagsQuery.includes(tag.toLowerCase()))
     );
   }
 
@@ -130,8 +143,59 @@ app.get('/v1/quote/random', (req, res) => {
   res.json(responseQuote);
 });
 
-// GET /v1/authors
-app.get('/v1/authors', (req, res) => {
+// GET /quotes/:id (Specific Quote)
+app.get('/quotes/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  if (isNaN(id)) {
+    return res.status(400).json({ error: { code: 400, message: "Invalid ID format" } });
+  }
+
+  const quote = quotes.find(q => q.id === id);
+  if (!quote) {
+    return res.status(404).json({ error: { code: 404, message: "Quote not found" } });
+  }
+
+  res.json(quote);
+});
+
+// GET /quotes (Collection with Pagination)
+app.get('/quotes', (req, res) => {
+  let filteredQuotes = quotes;
+  const lang = req.query.lang || 'en';
+
+  // Apply filters (duplicate logic from random, could be refactored)
+  if (req.query.author) {
+    const authorQuery = req.query.author.toLowerCase();
+    filteredQuotes = filteredQuotes.filter(q => q.author.toLowerCase().includes(authorQuery));
+  }
+  if (req.query.field) {
+    const fieldQuery = req.query.field.toLowerCase();
+    filteredQuotes = filteredQuotes.filter(q => q.field.toLowerCase().includes(fieldQuery));
+  }
+
+  // Pagination
+  const page = parseInt(req.query.page) || 1;
+  const limit = Math.min(parseInt(req.query.limit) || 20, 100); // Max 100
+  const startIndex = (page - 1) * limit;
+  const endIndex = page * limit;
+
+  const results = filteredQuotes.slice(startIndex, endIndex).map(q => {
+     // Apply lang filter to list items too
+     const mapped = { ...q };
+     mapped.content = q.content[lang] || q.content['en'];
+     return mapped;
+  });
+
+  res.json({
+    count: filteredQuotes.length,
+    page: page,
+    totalPages: Math.ceil(filteredQuotes.length / limit),
+    results: results
+  });
+});
+
+// GET /authors
+app.get('/authors', (req, res) => {
   const cachedAuthors = cache.get('authors');
   if (cachedAuthors) {
     return res.json(cachedAuthors);
@@ -141,8 +205,8 @@ app.get('/v1/authors', (req, res) => {
   res.json(authors);
 });
 
-// GET /v1/fields
-app.get('/v1/fields', (req, res) => {
+// GET /fields
+app.get('/fields', (req, res) => {
   const cachedFields = cache.get('fields');
   if (cachedFields) {
     return res.json(cachedFields);

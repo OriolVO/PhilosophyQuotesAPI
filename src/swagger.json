@@ -1,62 +1,91 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "Philosophy Quotes API",
-    "description": "A simple API to get random quotes from famous philosophers.",
-    "version": "1.0.0"
+    "title": "PhiloAPI",
+    "version": "2.0.0",
+    "description": "A RESTful API for Philosophical Quotes. Search, filter, and discover wisdom from the ancients to the moderns."
   },
   "servers": [
     {
-      "url": "http://localhost:3000/v1"
+      "url": "http://localhost:3000",
+      "description": "Local Development Server"
     }
   ],
+  "components": {
+    "securitySchemes": {
+      "rapidApiKey": {
+        "type": "apiKey",
+        "name": "X-RapidAPI-Proxy-Secret",
+        "in": "header"
+      }
+    },
+    "schemas": {
+      "Quote": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "content": {
+            "type": "string",
+            "example": "I know that I know nothing."
+          },
+          "author": { "type": "string", "example": "Socrates" },
+          "field": { "type": "string", "example": "Epistemology" },
+          "era": { "type": "string", "example": "Classical Greece" },
+          "source": { "type": "string", "example": "Apology" }
+        }
+      },
+      "QuoteCollection": {
+        "type": "object",
+        "properties": {
+          "count": { "type": "integer", "example": 100 },
+          "page": { "type": "integer", "example": 1 },
+          "totalPages": { "type": "integer", "example": 5 },
+          "results": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Quote" }
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    { "rapidApiKey": [] }
+  ],
   "paths": {
-    "/quote/random": {
+    "/quotes": {
       "get": {
-        "summary": "Get a random quote",
+        "summary": "Get a list of quotes",
+        "description": "Retrieve a paginated list of philosophy quotes.",
         "parameters": [
           {
-            "name": "X-RapidAPI-Proxy-Secret",
-            "in": "header",
-            "schema": { "type": "string" },
-            "required": true,
-            "description": "RapidAPI Secret for authentication"
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "integer", "default": 1 },
+            "description": "Page number"
           },
           {
-            "name": "lang",
+            "name": "limit",
             "in": "query",
-            "schema": { "type": "string", "default": "en" },
-            "description": "Language code (en, es)"
-          },
-          {
-            "name": "era",
-            "in": "query",
-            "schema": { "type": "string" },
-            "description": "Filter by era (e.g. Ancient, Modern)"
+            "schema": { "type": "integer", "default": 20 },
+            "description": "Number of items per page (max 100)"
           },
           {
             "name": "author",
             "in": "query",
             "schema": { "type": "string" },
-            "description": "Filter by author name (partial match)"
+            "description": "Filter by Author Name"
           },
           {
             "name": "field",
             "in": "query",
             "schema": { "type": "string" },
-            "description": "Filter by philosophical field"
+            "description": "Filter by Philosophical Field"
           },
           {
-            "name": "tags",
+            "name": "lang",
             "in": "query",
-            "schema": { "type": "string" },
-            "description": "Filter by tags (comma separated)"
-          },
-          {
-            "name": "maxLength",
-            "in": "query",
-            "schema": { "type": "integer" },
-            "description": "Maximum length of the quote"
+            "schema": { "type": "string", "default": "en" },
+            "description": "Language code (en, es, fr, pt)"
           }
         ],
         "responses": {
@@ -64,17 +93,85 @@
             "description": "Successful response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Quote"
-                }
+                "schema": { "$ref": "#/components/schemas/QuoteCollection" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/quotes/random": {
+      "get": {
+        "summary": "Get a random quote",
+        "description": "Retrieve a single random quote, optionally filtered.",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "schema": { "type": "string" },
+            "description": "Full-text search (content or author)"
+          },
+          {
+            "name": "author",
+            "in": "query",
+            "schema": { "type": "string" },
+            "description": "Filter by Author"
+          },
+          {
+            "name": "era",
+            "in": "query",
+            "schema": { "type": "string" },
+            "description": "Filter by Era (e.g., 'Modern', 'Ancient')"
+          },
+          {
+            "name": "field",
+            "in": "query",
+            "schema": { "type": "string" },
+            "description": "Filter by Field"
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "schema": { "type": "string", "default": "en" },
+            "description": "Language code"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Quote" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/quotes/{id}": {
+      "get": {
+        "summary": "Get a specific quote",
+        "description": "Retrieve a quote by its unique ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" },
+            "description": "Quote ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Quote" }
               }
             }
           },
-          "401": {
-            "description": "Unauthorized / Forbidden (Missing Secret)"
-          },
           "404": {
-            "description": "No quotes found"
+            "description": "Quote not found"
           }
         }
       }
@@ -82,9 +179,10 @@
     "/authors": {
       "get": {
         "summary": "Get all authors",
+        "description": "Retrieve a list of all available authors.",
         "responses": {
           "200": {
-            "description": "List of authors",
+            "description": "Successful response",
             "content": {
               "application/json": {
                 "schema": {
@@ -100,9 +198,10 @@
     "/fields": {
       "get": {
         "summary": "Get all fields",
+        "description": "Retrieve a list of all available philosophical fields.",
         "responses": {
           "200": {
-            "description": "List of fields",
+            "description": "Successful response",
             "content": {
               "application/json": {
                 "schema": {
@@ -112,29 +211,6 @@
               }
             }
           }
-        }
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "Quote": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "integer" },
-          "content": { 
-            "type": "string",
-            "description": "Quote in requested language (defaults to en)"
-          },
-          "author": { "type": "string" },
-          "field": { "type": "string" },
-          "era": { "type": "string", "example": "Ancient" },
-          "wiki": { "type": "string", "format": "uri" },
-          "tags": { 
-            "type": "array",
-            "items": { "type": "string" }
-          },
-          "source": { "type": "string" }
         }
       }
     }

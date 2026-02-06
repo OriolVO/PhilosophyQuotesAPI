@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Philosophy Quotes API - Wisdom as a Service</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Lora:ital,wght@1,400;1,500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <nav>
+            <a href="/" class="logo">Philosophy Quotes API</a>
+            <div class="nav-links">
+                <a href="/api-docs">Documentation</a>
+                <a href="/quotes">Collection</a>
+                <a href="https://github.com/oriolvo/PhilosophyQuotesAPI">GitHub</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="hero-text">
+            <h1>Wisdom available<br>on request.</h1>
+            <p>
+                A modern, RESTful API serving curated philosophical quotes from the ancients to the moderns. Open source and ready for your next project.
+            </p>
+            <div class="btn-group">
+                <a href="/api-docs" class="btn btn-primary">Read the Docs</a>
+                <button class="btn btn-secondary" onclick="fetchQuote()">Get Random Quote</button>
+            </div>
+        </div>
+
+        <div class="demo-window">
+            <div class="window-header">
+                <div class="dot" style="background:#ef4444"></div>
+                <div class="dot" style="background:#f59e0b"></div>
+                <div class="dot" style="background:#22c55e"></div>
+                <div class="url-bar">GET /quotes/random</div>
+            </div>
+            <div class="window-content">
+                <div id="visual-mode">
+                    <div id="quote-text" class="quote-display">"The only true wisdom is in knowing you know nothing."</div>
+                    <div id="quote-author" class="author-display">Socrates</div>
+                    <div id="quote-meta" class="meta-display">Classical Greece • Epistemology</div>
+                </div>
+                <pre id="json-mode" class="json-view">Loading...</pre>
+                
+                <div class="toggle-view" onclick="toggleView()">View JSON Response</div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        &copy; 2026 Philosophy Quotes API. released under PolyForm Noncommercial License.
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
