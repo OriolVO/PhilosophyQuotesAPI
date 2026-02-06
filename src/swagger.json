@@ -2,13 +2,17 @@
   "openapi": "3.0.0",
   "info": {
     "title": "PhiloAPI",
-    "version": "2.0.0",
+    "version": "1.0.0",
     "description": "A RESTful API for Philosophical Quotes. Search, filter, and discover wisdom from the ancients to the moderns."
   },
   "servers": [
     {
       "url": "http://localhost:3000",
       "description": "Local Development Server"
+    },
+    {
+      "url": "https://education-philosophy-quotes-api.com",
+      "description": "Production Server"
     }
   ],
   "components": {
@@ -16,30 +20,32 @@
       "rapidApiKey": {
         "type": "apiKey",
         "name": "X-RapidAPI-Proxy-Secret",
-        "in": "header"
+        "in": "header",
+        "description": "Required for all API endpoints (except the landing page)."
       }
     },
     "schemas": {
       "Quote": {
         "type": "object",
         "properties": {
-          "id": { "type": "integer", "example": 1 },
+          "id": { "type": "integer", "example": 1, "description": "Unique identifier for the quote" },
           "content": {
             "type": "string",
-            "example": "I know that I know nothing."
+            "example": "I know that I know nothing.",
+            "description": "The quote text (in the requested language)"
           },
-          "author": { "type": "string", "example": "Socrates" },
-          "field": { "type": "string", "example": "Epistemology" },
-          "era": { "type": "string", "example": "Classical Greece" },
-          "source": { "type": "string", "example": "Apology" }
+          "author": { "type": "string", "example": "Socrates", "description": "Philosopher's name" },
+          "field": { "type": "string", "example": "Epistemology", "description": "Philosophical branch" },
+          "era": { "type": "string", "example": "Classical Greece", "description": "Historical era" },
+          "source": { "type": "string", "example": "Apology", "description": "Book or work where the quote appears" }
         }
       },
       "QuoteCollection": {
         "type": "object",
         "properties": {
-          "count": { "type": "integer", "example": 100 },
-          "page": { "type": "integer", "example": 1 },
-          "totalPages": { "type": "integer", "example": 5 },
+          "count": { "type": "integer", "example": 100, "description": "Total items matching filters" },
+          "page": { "type": "integer", "example": 1, "description": "Current page number" },
+          "totalPages": { "type": "integer", "example": 5, "description": "Total pages available" },
           "results": {
             "type": "array",
             "items": { "$ref": "#/components/schemas/Quote" }
@@ -54,38 +60,38 @@
   "paths": {
     "/quotes": {
       "get": {
-        "summary": "Get a list of quotes",
-        "description": "Retrieve a paginated list of philosophy quotes.",
+        "summary": "List all quotes",
+        "description": "Retrieve a paginated list of philosophy quotes with optional filters.",
         "parameters": [
           {
             "name": "page",
             "in": "query",
             "schema": { "type": "integer", "default": 1 },
-            "description": "Page number"
+            "description": "Page number (pagination)"
           },
           {
             "name": "limit",
             "in": "query",
-            "schema": { "type": "integer", "default": 20 },
-            "description": "Number of items per page (max 100)"
+            "schema": { "type": "integer", "default": 20, "maximum": 100 },
+            "description": "Items per page"
           },
           {
             "name": "author",
             "in": "query",
             "schema": { "type": "string" },
-            "description": "Filter by Author Name"
+            "description": "Filter by Author Name (case-insensitive substring match)"
           },
           {
             "name": "field",
             "in": "query",
             "schema": { "type": "string" },
-            "description": "Filter by Philosophical Field"
+            "description": "Filter by Philosophical Field (case-insensitive substring match)"
           },
           {
             "name": "lang",
             "in": "query",
-            "schema": { "type": "string", "default": "en" },
-            "description": "Language code (en, es, fr, pt)"
+            "schema": { "type": "string", "default": "en", "enum": ["en", "es", "fr", "pt"] },
+            "description": "Language code for quote content."
           }
         ],
         "responses": {
@@ -103,37 +109,43 @@
     "/quotes/random": {
       "get": {
         "summary": "Get a random quote",
-        "description": "Retrieve a single random quote, optionally filtered.",
+        "description": "Retrieve a single random quote, optionally filtered by search terms or metadata.",
         "parameters": [
           {
             "name": "query",
             "in": "query",
             "schema": { "type": "string" },
-            "description": "Full-text search (content or author)"
+            "description": "Full-text search (searches content and author). Supports special characters (e.g., '?')."
           },
           {
             "name": "author",
             "in": "query",
             "schema": { "type": "string" },
-            "description": "Filter by Author"
+            "description": "Filter by exact or partial Author Name"
           },
           {
             "name": "era",
             "in": "query",
             "schema": { "type": "string" },
-            "description": "Filter by Era (e.g., 'Modern', 'Ancient')"
+            "description": "Filter by Era (e.g., 'Modern', 'Ancient', 'Enlightenment')"
           },
           {
             "name": "field",
             "in": "query",
             "schema": { "type": "string" },
-            "description": "Filter by Field"
+            "description": "Filter by Field (e.g., 'Ethics', 'Logic')"
           },
           {
             "name": "lang",
             "in": "query",
-            "schema": { "type": "string", "default": "en" },
-            "description": "Language code"
+            "schema": { "type": "string", "default": "en", "enum": ["en", "es", "fr", "pt"] },
+            "description": "Language code for the returned quote content"
+          },
+          {
+            "name": "maxLength",
+            "in": "query",
+            "schema": { "type": "integer" },
+            "description": "Maximum character length of the quote content (useful for social media)"
           }
         ],
         "responses": {
@@ -144,6 +156,9 @@
                 "schema": { "$ref": "#/components/schemas/Quote" }
               }
             }
+          },
+          "404": {
+            "description": "No quotes found matching criteria"
           }
         }
       }
@@ -151,14 +166,14 @@
     "/quotes/{id}": {
       "get": {
         "summary": "Get a specific quote",
-        "description": "Retrieve a quote by its unique ID.",
+        "description": "Retrieve a quote by its unique ID (Permalink).",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
             "schema": { "type": "integer" },
-            "description": "Quote ID"
+            "description": "Methods unique ID (integer)"
           }
         ],
         "responses": {
@@ -178,8 +193,8 @@
     },
     "/authors": {
       "get": {
-        "summary": "Get all authors",
-        "description": "Retrieve a list of all available authors.",
+        "summary": "List authors",
+        "description": "Retrieve a list of all available authors in the database.",
         "responses": {
           "200": {
             "description": "Successful response",
@@ -197,7 +212,7 @@
     },
     "/fields": {
       "get": {
-        "summary": "Get all fields",
+        "summary": "List fields",
         "description": "Retrieve a list of all available philosophical fields.",
         "responses": {
           "200": {
@@ -210,6 +225,17 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health Check",
+        "description": "Simple endpoint to verify server status.",
+        "responses": {
+          "200": {
+            "description": "Server is up and running"
           }
         }
       }

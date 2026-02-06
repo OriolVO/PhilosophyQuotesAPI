@@ -1,83 +1,60 @@
 # Philosophy Quotes API
 
-A lightweight, robust Node.js REST API that serves random philosophical quotes. Built with Express, ensuring performance, reliability, and easy integration.
+**Wisdom as a Service.** A RESTful API serving curated philosophy quotes from the ancients to the moderns, with multi-language support and deep metadata.
 
-## 🚀 Features
+---
 
--   **Random Quotes**: Get a random wisdom nugget instantly.
--   **Security**: `X-RapidAPI-Proxy-Secret` validation for authorized access.
--   **Filtering**: Filter by `author`, `field`, `era`, or `tags`.
--   **Internationalization (i18n)**: Get quotes in English (`en`) or Spanish (`es`).
--   **Rich Metadata**: Includes Wikipedia links and Era classifications.
--   **Performance**: In-memory database with Caching for static lists.
--   **Documentation**: Integrated Swagger UI & Logging.
+## 🌍 For API Users (Quick Start)
 
-## 🛠️ Installation
+If you just want to consume the API in your app, website, or script, this section is for you.
 
-1.  **Clone the repository**
-    ```bash
-    git clone https://github.com/yourusername/PhiloAPI.git
-    cd PhiloAPI
-    ```
+**Base URL**: `https://your-deployed-domain.com` (or `http://localhost:3000` locally)
 
-2.  **Install dependencies**
-    ```bash
-    npm install
-    ```
+### key Endpoints
 
-3.  **Configure Environment**
-    Create a `.env` file:
-    ```bash
-    cp .env.example .env
-    # Edit .env and set your RAPIDAPI_SECRET
-    ```
+-   **Get Random Quote**: `GET /quotes/random`
+    -   *Try it*: `curl https://.../quotes/random?query=truth`
+-   **Browse All**: `GET /quotes`
+    -   *Try it*: `curl https://.../quotes?author=Plato&limit=5`
+-   **Get by ID**: `GET /quotes/:id`
 
-4.  **Start the server**
-    ```bash
-    npm start
-    ```
-
-## 📖 API Usage
-
-The API runs on `http://localhost:3000` by default.
+### Powerful Filtering
+Refine your search with these parameters:
+-   `lang`: `en`, `es`, `fr`, `pt` (Defaults to English)
+-   `query`: Search content/author (Supports `?`, `!`, etc.)
+-   `author`: Filter by name (e.g., "Nietzsche")
+-   `era`: Filter by era (e.g., "Ancient")
+-   `maxLength`: Limit tweet length (e.g., `140`)
 
 ### Authentication
-All requests must include the `X-RapidAPI-Proxy-Secret` header matching your `.env` secret.
+Requests require a simple header:
+`X-RapidAPI-Proxy-Secret: <your-secret-key>`
 
-### Endpoints
--   `GET /v1/quote/random` - Get a random quote.
-    -   `lang`: Language code (`en`, `es`). Default: `en`.
-    -   `era`: Filter by era (e.g., `Ancient`).
-    -   `author`: Filter by author name.
-    -   `tags`: Filter by tags.
--   `GET /v1/authors` - List all available authors.
--   `GET /v1/fields` - List all philosophical fields.
--   `GET /health` - Service health check.
--   `GET /api-docs` - Interactive Swagger Documentation.
+---
 
-### Example Request
+## 🛠️ For Developers (Build & Deploy)
 
-```bash
-```bash
-curl -H "X-RapidAPI-Proxy-Secret: your-secret" \
-     "http://localhost:3000/v1/quote/random?author=Nietzsche&lang=es"
-```
-```
+If you want to host your own instance or contribute to the code.
 
-## 🧪 Running Tests
+### Installation
+1.  **Clone**: `git clone https://github.com/oriolvo/Philosophy-Quotes-API.git`
+2.  **Install**: `npm install`
+3.  **Config**: `cp .env.example .env` and set your secrets.
 
-This project uses **Jest** and **Supertest** for integration testing.
+### Development
+-   **Start Server**: `npm start` (Runs on port 3000)
+-   **Run Tests**: `npm test`
+-   **Structure**:
+    -   `src/index.js`: Main server entry point.
+    -   `src/data/`: JSON database.
+    -   `public/`: Landing page assets.
 
-```bash
-npm test
-```
+### Requirements
+-   Node.js v18+
+-   Express
 
-## 🗺️ Roadmap
-
-See [ROADMAP.md](ROADMAP.md) for the detailed development plan and future phases.
+---
 
 ## 📄 License
-
-This project is licensed under the **PolyForm Noncommercial License 1.0.0**. 
-
-**You may NOT use this source code for commercial purposes.** See [LICENSE](LICENSE) for details.
+Released under the **PolyForm Noncommercial License 1.0.0**.
+Free for personal and educational use. Commercial use requires permission.
