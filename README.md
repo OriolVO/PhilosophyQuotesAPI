@@ -32,29 +32,6 @@ Requests require a simple header:
 
 ---
 
-## 🛠️ For Developers (Build & Deploy)
-
-If you want to host your own instance or contribute to the code.
-
-### Installation
-1.  **Clone**: `git clone https://github.com/oriolvo/Philosophy-Quotes-API.git`
-2.  **Install**: `npm install`
-3.  **Config**: `cp .env.example .env` and set your secrets.
-
-### Development
--   **Start Server**: `npm start` (Runs on port 3000)
--   **Run Tests**: `npm test`
--   **Structure**:
-    -   `src/index.js`: Main server entry point.
-    -   `src/data/`: JSON database.
-    -   `public/`: Landing page assets.
-
-### Requirements
--   Node.js v18+
--   Express
-
----
-
 ## 📄 License
 Released under the **PolyForm Noncommercial License 1.0.0**.
 Free for personal and educational use. Commercial use requires permission.
