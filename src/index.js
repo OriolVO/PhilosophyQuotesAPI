@@ -15,41 +15,57 @@ const cache = new NodeCache({ stdTTL: 3600 }); // 1 hour TTL
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ---------------------------
+// Security & Middleware
+// ---------------------------
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"], // Allow inline scripts
-      scriptSrcAttr: ["'unsafe-inline'"], // Allow inline event handlers (onclick)
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"], // Allow inline styles & Google Fonts
-      fontSrc: ["'self'", "https://fonts.gstatic.com"], // Allow Google Fonts
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrcAttr: ["'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:"],
     },
   },
 }));
+
 app.use(morgan('dev'));
+
+// ---------------------------
+// CORS
+// ---------------------------
+// Allow all origins (or replace '*' with your frontend domain in production)
 app.use(cors());
+
+// ---------------------------
+// JSON parsing
+// ---------------------------
 app.use(express.json());
 
+// ---------------------------
 // Serve Static Landing Page
+// ---------------------------
 app.use(express.static(path.join(__dirname, '../public')));
 
+// ---------------------------
 // Rate Limiting
+// ---------------------------
 const limiter = setRateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: 100,
   headers: true,
 });
 app.use(limiter);
 
-// Root Route - Handled by express.static now
-// If index.html is missing, fallthrough behavior (optional)
-
+// ---------------------------
 // RapidAPI Proxy Secret Validation
+// ---------------------------
 const checkRapidApiSecret = (req, res, next) => {
   const secret = process.env.RAPIDAPI_SECRET;
-  if (!secret) return next(); // If no secret set, skip check (dev mode)
-  
+  if (!secret) return next(); // Dev mode skip
+
   const clientSecret = req.get('X-RapidAPI-Proxy-Secret');
   if (clientSecret !== secret) {
     return res.status(403).json({ 
@@ -59,147 +75,92 @@ const checkRapidApiSecret = (req, res, next) => {
   next();
 };
 
-// Apply secret check to all /quotes and meta routes
+// Apply secret check to API routes
 app.use(['/quotes', '/authors', '/fields'], checkRapidApiSecret);
 
+// ---------------------------
 // Documentation
+// ---------------------------
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// Helper function to get unique values
-const getUniqueValues = (key) => {
-  const values = new Set(quotes.map(q => q[key]));
-  return Array.from(values);
-};
+// ---------------------------
+// Helper Functions
+// ---------------------------
+const getUniqueValues = (key) => Array.from(new Set(quotes.map(q => q[key])));
 
-// GET /quote (Redirect legacy/typo)
-app.get('/quote', (req, res) => {
-  res.redirect(301, '/quotes');
-});
+// ---------------------------
+// Routes
+// ---------------------------
 
-// GET /quotes/random (Preserve "Random" logic, must be before :id)
+// Redirect legacy /quote to /quotes
+app.get('/quote', (req, res) => res.redirect(301, '/quotes'));
+
+// GET /quotes/random
 app.get('/quotes/random', (req, res) => {
   let filteredQuotes = quotes;
+  const lang = req.query.lang || 'en';
 
-  // Full-Text Search
+  // Filters
   if (req.query.query) {
     const searchTerm = req.query.query.toLowerCase();
-    filteredQuotes = filteredQuotes.filter(q => {
-      const authorMatch = q.author.toLowerCase().includes(searchTerm);
-      const contentMatch = Object.values(q.content).some(text => 
-        text && text.toLowerCase().includes(searchTerm)
-      );
-      return authorMatch || contentMatch;
-    });
-  }
-
-  // Filter by author
-  if (req.query.author) {
-    const authorQuery = req.query.author.toLowerCase();
-    filteredQuotes = filteredQuotes.filter(q => 
-      q.author.toLowerCase().includes(authorQuery)
+    filteredQuotes = filteredQuotes.filter(q =>
+      q.author.toLowerCase().includes(searchTerm) ||
+      Object.values(q.content).some(text => text && text.toLowerCase().includes(searchTerm))
     );
   }
-
-  // Filter by era
-  if (req.query.era) {
-    const eraQuery = req.query.era.toLowerCase();
-    filteredQuotes = filteredQuotes.filter(q => 
-      q.era && q.era.toLowerCase().includes(eraQuery)
-    );
-  }
-
-  // Filter by field
-  if (req.query.field) {
-    const fieldQuery = req.query.field.toLowerCase();
-    filteredQuotes = filteredQuotes.filter(q => 
-      q.field.toLowerCase().includes(fieldQuery)
-    );
-  }
-
-  // Filter by maxLength
-  const lang = req.query.lang || 'en';
-  
+  if (req.query.author) filteredQuotes = filteredQuotes.filter(q => q.author.toLowerCase().includes(req.query.author.toLowerCase()));
+  if (req.query.era) filteredQuotes = filteredQuotes.filter(q => q.era && q.era.toLowerCase().includes(req.query.era.toLowerCase()));
+  if (req.query.field) filteredQuotes = filteredQuotes.filter(q => q.field.toLowerCase().includes(req.query.field.toLowerCase()));
   if (req.query.maxLength) {
     const maxLen = parseInt(req.query.maxLength);
-    if (!isNaN(maxLen)) {
-      filteredQuotes = filteredQuotes.filter(q => {
-        const text = q.content[lang] || q.content['en'];
-        return text.length <= maxLen;
-      });
-    }
+    if (!isNaN(maxLen)) filteredQuotes = filteredQuotes.filter(q => (q.content[lang] || q.content['en']).length <= maxLen);
   }
 
-  if (filteredQuotes.length === 0) {
-    return res.status(404).json({ error: { code: 404, message: "No quotes found matching criteria" } });
-  }
+  if (!filteredQuotes.length) return res.status(404).json({ error: { code: 404, message: "No quotes found" } });
 
   const randomIndex = Math.floor(Math.random() * filteredQuotes.length);
   const quote = filteredQuotes[randomIndex];
-  
-  // Return specific language content
-  const responseQuote = { ...quote };
-  responseQuote.content = quote.content[lang] || quote.content['en']; // Fallback to EN
-  
-  res.json(responseQuote);
+  res.json({ ...quote, content: quote.content[lang] || quote.content['en'] });
 });
 
-// GET /quotes/:id (Specific Quote)
+// GET /quotes/:id
 app.get('/quotes/:id', (req, res) => {
   const id = parseInt(req.params.id);
-  if (isNaN(id)) {
-    return res.status(400).json({ error: { code: 400, message: "Invalid ID format" } });
-  }
+  if (isNaN(id)) return res.status(400).json({ error: { code: 400, message: "Invalid ID" } });
 
   const quote = quotes.find(q => q.id === id);
-  if (!quote) {
-    return res.status(404).json({ error: { code: 404, message: "Quote not found" } });
-  }
+  if (!quote) return res.status(404).json({ error: { code: 404, message: "Quote not found" } });
 
   res.json(quote);
 });
 
-// GET /quotes (Collection with Pagination)
+// GET /quotes (list with pagination)
 app.get('/quotes', (req, res) => {
   let filteredQuotes = quotes;
   const lang = req.query.lang || 'en';
 
-  // Apply filters (duplicate logic from random, could be refactored)
-  if (req.query.author) {
-    const authorQuery = req.query.author.toLowerCase();
-    filteredQuotes = filteredQuotes.filter(q => q.author.toLowerCase().includes(authorQuery));
-  }
-  if (req.query.field) {
-    const fieldQuery = req.query.field.toLowerCase();
-    filteredQuotes = filteredQuotes.filter(q => q.field.toLowerCase().includes(fieldQuery));
-  }
+  if (req.query.author) filteredQuotes = filteredQuotes.filter(q => q.author.toLowerCase().includes(req.query.author.toLowerCase()));
+  if (req.query.field) filteredQuotes = filteredQuotes.filter(q => q.field.toLowerCase().includes(req.query.field.toLowerCase()));
 
-  // Pagination
   const page = parseInt(req.query.page) || 1;
-  const limit = Math.min(parseInt(req.query.limit) || 20, 100); // Max 100
+  const limit = Math.min(parseInt(req.query.limit) || 20, 100);
   const startIndex = (page - 1) * limit;
   const endIndex = page * limit;
 
-  const results = filteredQuotes.slice(startIndex, endIndex).map(q => {
-     // Apply lang filter to list items too
-     const mapped = { ...q };
-     mapped.content = q.content[lang] || q.content['en'];
-     return mapped;
-  });
+  const results = filteredQuotes.slice(startIndex, endIndex).map(q => ({ ...q, content: q.content[lang] || q.content['en'] }));
 
   res.json({
     count: filteredQuotes.length,
-    page: page,
+    page,
     totalPages: Math.ceil(filteredQuotes.length / limit),
-    results: results
+    results
   });
 });
 
 // GET /authors
 app.get('/authors', (req, res) => {
   const cachedAuthors = cache.get('authors');
-  if (cachedAuthors) {
-    return res.json(cachedAuthors);
-  }
+  if (cachedAuthors) return res.json(cachedAuthors);
   const authors = getUniqueValues('author');
   cache.set('authors', authors);
   res.json(authors);
@@ -208,35 +169,29 @@ app.get('/authors', (req, res) => {
 // GET /fields
 app.get('/fields', (req, res) => {
   const cachedFields = cache.get('fields');
-  if (cachedFields) {
-    return res.json(cachedFields);
-  }
+  if (cachedFields) return res.json(cachedFields);
   const fields = getUniqueValues('field');
   cache.set('fields', fields);
   res.json(fields);
 });
 
-// Health check
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
-});
+// Health Check
+app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
-// Error Handling Middleware
+// ---------------------------
+// Error Handling
+// ---------------------------
 app.use((err, req, res, next) => {
   console.error(err.stack);
   const code = err.status || 500;
-  res.status(code).json({
-    error: {
-      code: code,
-      message: err.message || "Internal Server Error"
-    }
-  });
+  res.status(code).json({ error: { code, message: err.message || "Internal Server Error" } });
 });
 
+// ---------------------------
+// Start Server
+// ---------------------------
 if (require.main === module) {
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
 
 module.exports = app;
